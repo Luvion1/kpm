@@ -1,0 +1,9 @@
+# Binaries
+kpm
+*.o
+
+# System
+.DS_Store
+
+# User local config (optional, but we track kmod.k for this repo)
+# kmod.k

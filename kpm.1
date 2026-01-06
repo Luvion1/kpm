@@ -1,0 +1,37 @@
+.TH KPM 1 "January 2026" "0.0.1" "KSharp Package Manager Manual"
+.SH NAME
+kpm \- Professional-grade decentralized package manager for KSharp
+.SH SYNOPSIS
+.B kpm
+[\fIcommand\fR] [\fIarguments\fR]
+.SH DESCRIPTION
+.B kpm
+is a decentralized package manager for the KSharp (K#) ecosystem. It treats URLs as package identities and uses Git to fetch source code directly from remote repositories into a local cache.
+.SH COMMANDS
+.TP
+.B init <name>
+Initialize a new KSharp project structure (src/, test/, and kmod.k).
+.TP
+.B get <url> [version]
+Fetch a package and its dependencies. Aliases: \fBinstall\fR.
+.TP
+.B list
+List all globally installed packages in the cache. Aliases: \fBls\fR.
+.TP
+.B remove <url>
+Remove a package from the global cache. Aliases: \fBrm\fR, \fBuninstall\fR.
+.TP
+.B tidy
+Resolve and install missing dependencies for the current project based on kmod.k. Aliases: \fBresolve\fR.
+.TP
+.B help
+Display usage information and command reference.
+.SH FILES
+.I ~/.ksharp/modules/
+Global cache directory where modules are stored in a domain-based hierarchy.
+.SH REPORTING BUGS
+Report bugs at <https://github.com/Luvion1/kpm/issues>
+.SH AUTHOR
+Luvion1 & KSharp Community
+.SH SEE ALSO
+.BR git (1)

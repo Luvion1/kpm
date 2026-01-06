@@ -1,0 +1,39 @@
+name: Release KPM
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential gcc-aarch64-linux-gnu
+
+    - name: Build Binary (${{ matrix.arch }})
+      run: |
+        if [ "${{ matrix.arch }}" = "aarch64" ]; then
+          make CC=aarch64-linux-gnu-gcc TARGET=kpm-aarch64
+        else
+          make TARGET=kpm-x86_64
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          kpm-x86_64
+          kpm-aarch64
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

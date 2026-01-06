@@ -1,0 +1,7 @@
+module test_project
+
+ksharp 0.0.1
+
+require (
+    // Add your dependencies here
+)

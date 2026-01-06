@@ -1,0 +1,11 @@
+module myproject
+
+ksharp 0.0.1
+
+require (
+    json 0.1.0
+    http 0.2.1
+)
+
+// Optional: replace directive for local development
+// replace json => ./local/json
