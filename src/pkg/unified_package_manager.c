@@ -317,9 +317,9 @@ bool create_project(const char* project_name) {
         fclose(main_fp);
     }
 
-    // Buat file konfigurasi module (kmod)
+    // Buat file konfigurasi module (kmod.k)
     char config_file[512];
-    snprintf(config_file, sizeof(config_file), "%s/kmod", project_name);
+    snprintf(config_file, sizeof(config_file), "%s/kmod.k", project_name);
 
     FILE* config_fp = fopen(config_file, "w");
     if (config_fp) {

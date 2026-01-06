@@ -71,15 +71,34 @@ bool registry_download_package(const StatelessRegistry* registry, const char* pa
     if (!registry || !package_url || !destination_dir) return false;
 
     if (!fs_mkdir_p(destination_dir)) return false;
-    rmdir(destination_dir); 
+    rmdir(destination_dir);
 
+    // Deteksi dan tangani protokol secara cerdas
+    const char* effective_url = package_url;
     char cmd[1024];
-    if (version && strcmp(version, "HEAD") != 0) {
-        snprintf(cmd, sizeof(cmd), "git clone --depth 1 --branch %s https://%s %s > /dev/null 2>&1", 
-                 version, package_url, destination_dir);
+
+    // Cek apakah URL sudah memiliki protokol (http://, https://, git@, dll.)
+    if (strncmp(package_url, "http://", 7) == 0 ||
+        strncmp(package_url, "https://", 8) == 0 ||
+        strncmp(package_url, "git@", 4) == 0 ||
+        strncmp(package_url, "ssh://", 6) == 0) {
+        // Jika sudah memiliki protokol, gunakan URL asli
+        if (version && strcmp(version, "HEAD") != 0) {
+            snprintf(cmd, sizeof(cmd), "git clone --depth 1 --branch %s %s %s > /dev/null 2>&1",
+                     version, effective_url, destination_dir);
+        } else {
+            snprintf(cmd, sizeof(cmd), "git clone --depth 1 %s %s > /dev/null 2>&1",
+                     effective_url, destination_dir);
+        }
     } else {
-        snprintf(cmd, sizeof(cmd), "git clone --depth 1 https://%s %s > /dev/null 2>&1", 
-                 package_url, destination_dir);
+        // Jika tidak memiliki protokol, tambahkan https:// secara default
+        if (version && strcmp(version, "HEAD") != 0) {
+            snprintf(cmd, sizeof(cmd), "git clone --depth 1 --branch %s https://%s %s > /dev/null 2>&1",
+                     version, effective_url, destination_dir);
+        } else {
+            snprintf(cmd, sizeof(cmd), "git clone --depth 1 https://%s %s > /dev/null 2>&1",
+                     effective_url, destination_dir);
+        }
     }
 
     if (!run_shell_cmd(cmd)) return false;

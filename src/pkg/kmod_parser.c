@@ -131,10 +131,19 @@ KModInfo* parse_kmod_file(const char* filepath) {
                     }
                 }
 
-                // Parse require entry - skip if it's just whitespace or comment
-                if (req_line && *req_line != '\0' && *req_line != '/' && *req_line != '\n' && *req_line != '\r') {
+                // Parse require entry - skip if it's just whitespace, comment, or the opening line "require ("
+                if (req_line && *req_line != '\0' && *req_line != '\n' && *req_line != '\r') {
                     // Skip comment lines that start with //
                     if (starts_with(req_line, "//")) {
+                        ptr = req_line_end;
+                        if (*ptr) ptr++;
+                        line_start = ptr;
+                        continue;
+                    }
+
+                    // Skip the opening line "require (" itself
+                    const char* trimmed_line = skip_whitespace(req_line);
+                    if (starts_with(trimmed_line, "require (")) {
                         ptr = req_line_end;
                         if (*ptr) ptr++;
                         line_start = ptr;
