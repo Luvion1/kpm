@@ -2,6 +2,7 @@
 #include "../util/utils.h"
 #include <ctype.h>
 #include <string.h>
+#include <stddef.h>
 
 // Fungsi untuk melewati whitespace
 static const char* skip_whitespace(const char* str) {
@@ -19,11 +20,16 @@ static bool starts_with(const char* str, const char* prefix) {
 // Fungsi untuk mengambil string hingga karakter tertentu
 static char* extract_until(const char* start, const char* end) {
     if (!start || !end || start >= end) return NULL;
-    
-    int len = end - start;
+
+    ptrdiff_t len = end - start;  // Gunakan ptrdiff_t untuk mencegah overflow
+    if (len <= 0) return NULL;
+
+    // Batasi panjang maksimum untuk mencegah alokasi memori besar
+    if (len > 1024) return NULL;
+
     char* result = malloc(len + 1);
     if (!result) return NULL;
-    
+
     strncpy(result, start, len);
     result[len] = '\0';
     return result;

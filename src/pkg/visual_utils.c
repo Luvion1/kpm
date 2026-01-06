@@ -18,19 +18,30 @@ void print_logo() {
 
 // Fungsi untuk menampilkan animasi loading sederhana
 void show_loading_animation(const char* message, int duration) {
-    if (!message) return; 
-    
+    if (!message) return;
+
+    // Batasi durasi maksimum untuk mencegah animasi berjalan terlalu lama
+    int max_duration = 30; // Maksimum 30 detik
+    if (duration > max_duration) {
+        duration = max_duration;
+    }
+
+    // Jika durasi negatif, set ke 1
+    if (duration <= 0) {
+        duration = 1;
+    }
+
     const char* frames[] = {"|", "/", "-", "\\"};
     int frame_count = 4;
-    
+
     printf(" %s ", message);
-    
+
     for (int i = 0; i < (duration * 4); i++) {
         printf("\b%s", frames[i % frame_count]);
         fflush(stdout);
         usleep(250000); // 0.25 detik
     }
-    
+
     printf("\b ");
 }
 

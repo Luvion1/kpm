@@ -15,7 +15,14 @@ char* read_file_safe(const char* filepath) {
     long length = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
+    // Validasi ukuran file untuk mencegah alokasi memori besar
     if (length < 0) {
+        fclose(fp);
+        return NULL;
+    }
+
+    // Batasi ukuran file maksimum (misalnya 100MB)
+    if (length > 100 * 1024 * 1024) {
         fclose(fp);
         return NULL;
     }
@@ -60,15 +67,19 @@ bool directory_exists(const char* path) {
 
 bool create_directory_recursive(const char* path) {
     if (!path) return false;
-    
-    char tmp[1024];
-    char* p = NULL;
-    size_t len;
 
-    snprintf(tmp, sizeof(tmp), "%s", path);
-    len = strlen(tmp);
+    char tmp[4096];  // Meningkatkan ukuran buffer untuk mencegah overflow
+    size_t len = strlen(path);
+
+    // Cek apakah path terlalu panjang
+    if (len >= sizeof(tmp)) {
+        return false;
+    }
+
+    strcpy(tmp, path);
+
     if (tmp[len - 1] == '/') tmp[len - 1] = 0;
-    for (p = tmp + 1; *p; p++) {
+    for (char* p = tmp + 1; *p; p++) {
         if (*p == '/') {
             *p = 0;
             if (mkdir(tmp, S_IRWXU) != 0 && errno != EEXIST) {
@@ -176,13 +187,32 @@ void free_unified_package_manager(UnifiedPackageManager* upm) {
 bool install_package(UnifiedPackageManager* upm, const char* package_name, const char* version) {
     if (!upm || !package_name) return false;
 
+    // Validasi panjang nama package untuk mencegah buffer overflow
+    size_t package_name_len = strlen(package_name);
+    if (package_name_len == 0) {
+        show_status_message("Package name cannot be empty", "error");
+        return false;
+    }
+
+    // Maksimum panjang nama package agar path tetap dalam batas aman
+    if (package_name_len > 500) {
+        show_status_message("Package name too long (max 500 characters)", "error");
+        return false;
+    }
+
     // Cek apakah package sudah terinstal
     UnifiedPackage* current = upm->packages;
     while (current) {
         if (strcmp(current->name, package_name) == 0) {
             char msg[256];
-            snprintf(msg, sizeof(msg), "Package %s is already installed", package_name);
-            show_status_message(msg, "warning");
+            // Gunakan snprintf dengan batas aman untuk mencegah buffer overflow
+            int written = snprintf(msg, sizeof(msg), "Package %s is already installed", package_name);
+            if (written < 0 || (size_t)written >= sizeof(msg)) {
+                // Jika pesan terpotong, gunakan pesan generik
+                show_status_message("Package is already installed", "warning");
+            } else {
+                show_status_message(msg, "warning");
+            }
             return true; // Sudah terinstal, tidak error
         }
         current = current->next;
@@ -193,8 +223,15 @@ bool install_package(UnifiedPackageManager* upm, const char* package_name, const
 
     // Download secara nyata
     char install_path[1024];
+    // Validasi bahwa kombinasi cache_dir dan package_name tidak melebihi batas aman
+    size_t cache_dir_len = strlen(upm->cache_dir);
+    if (cache_dir_len + package_name_len + 1 >= sizeof(install_path)) {  // +1 untuk '/'
+        show_status_message("Cache directory path too long", "error");
+        return false;
+    }
+
     snprintf(install_path, sizeof(install_path), "%s/%s", upm->cache_dir, package_name);
-    
+
     if (!registry_download_package(upm->registry, package_name, version, install_path)) {
         show_status_message("Download failed", "error");
         return false;
@@ -220,13 +257,32 @@ bool install_package(UnifiedPackageManager* upm, const char* package_name, const
 bool uninstall_package(UnifiedPackageManager* upm, const char* package_name) {
     if (!upm || !package_name) return false;
 
+    // Validasi panjang nama package untuk mencegah buffer overflow
+    size_t package_name_len = strlen(package_name);
+    if (package_name_len == 0) {
+        show_status_message("Package name cannot be empty", "error");
+        return false;
+    }
+
+    // Maksimum panjang nama package agar pesan tetap dalam batas aman
+    if (package_name_len > 200) {
+        show_status_message("Package name too long (max 200 characters)", "error");
+        return false;
+    }
+
     UnifiedPackage* current = upm->packages;
     UnifiedPackage* prev = NULL;
 
     // Tampilkan animasi loading untuk proses uninstall
     char msg[256];
-    snprintf(msg, sizeof(msg), COL_BRIGHT_RED "Uninstalling package: %s" COL_RESET, package_name);
-    show_loading_animation(msg, 2);
+    // Gunakan snprintf dengan batas aman untuk mencegah buffer overflow
+    int written = snprintf(msg, sizeof(msg), COL_BRIGHT_RED "Uninstalling package: %s" COL_RESET, package_name);
+    if (written < 0 || (size_t)written >= sizeof(msg)) {
+        // Jika pesan terpotong, gunakan pesan generik
+        show_loading_animation(COL_BRIGHT_RED "Uninstalling package" COL_RESET, 2);
+    } else {
+        show_loading_animation(msg, 2);
+    }
 
     while (current) {
         if (strcmp(current->name, package_name) == 0) {
@@ -277,6 +333,19 @@ bool list_packages(UnifiedPackageManager* upm) {
 // Fungsi-fungsi manajemen proyek
 bool create_project(const char* project_name) {
     if (!project_name) return false;
+
+    // Validasi panjang nama proyek untuk mencegah buffer overflow
+    size_t project_name_len = strlen(project_name);
+    if (project_name_len == 0) {
+        show_status_message("Project name cannot be empty", "error");
+        return false;
+    }
+
+    // Maksimum panjang nama proyek agar path tetap dalam batas aman (512 byte)
+    if (project_name_len > 250) {
+        show_status_message("Project name too long (max 250 characters)", "error");
+        return false;
+    }
 
     printf(COL_BOLD_MAGENTA "\n  🚀 Creating new K# project: " COL_BOLD_CYAN "%s" COL_RESET "\n", project_name);
 
@@ -383,37 +452,45 @@ bool parse_header_meta_from_file(const char* filepath, HeaderMeta* meta) {
     char* content = read_file_safe(filepath);
     if (!content) return false;
 
-    char* line = strtok(content, "\n");
+    char* content_copy = strdup(content);  // Buat salinan untuk diproses
+    if (!content_copy) {
+        free(content);
+        return false;
+    }
+
+    char* saveptr = NULL;  // Untuk penggunaan strtok_r yang aman
+    char* line = strtok_r(content_copy, "\n", &saveptr);
+
     while (line) {
         // Periksa apakah baris adalah header K# yang valid
         if (strncmp(line, "// @", 4) == 0) {
             const char* content_ptr = line + 4; // Lewati "// @"
-            
+
             // Lewati spasi awal
             while (*content_ptr && isspace(*content_ptr)) {
                 content_ptr++;
             }
-            
+
             // Ekstrak key-value
             const char* key_start = content_ptr;
             while (*content_ptr && !isspace(*content_ptr) && *content_ptr != ':') {
                 content_ptr++;
             }
-            
+
             if (content_ptr > key_start) {
                 int key_len = content_ptr - key_start;
                 char key[256];
                 strncpy(key, key_start, key_len);
                 key[key_len] = '\0';
-                
+
                 // Lewati delimiter
                 while (*content_ptr && (isspace(*content_ptr) || *content_ptr == ':')) {
                     content_ptr++;
                 }
-                
+
                 // Nilai adalah sisa dari baris
                 const char* value_start = content_ptr;
-                
+
                 // Alokasikan dan simpan nilai ke field yang sesuai
                 if (strcmp(key, "name") == 0 || strcmp(key, "package") == 0) {
                     free(meta->package_name);
@@ -457,11 +534,12 @@ bool parse_header_meta_from_file(const char* filepath, HeaderMeta* meta) {
                 }
             }
         }
-        
-        line = strtok(NULL, "\n");
+
+        line = strtok_r(NULL, "\n", &saveptr);
     }
 
     free(content);
+    free(content_copy);
     return true;
 }
 
