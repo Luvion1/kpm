@@ -40,7 +40,7 @@ install: all
 	install -m 755 $(TARGET) $(DESTDIR)$(PREFIX)/bin
 	# Install Man Page
 	install -d $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m 644 kpm.1 $(DESTDIR)$(PREFIX)/share/man/man1
+	install -m 644 man/kpm.1 $(DESTDIR)$(PREFIX)/share/man/man1
 	# Install Bash Completion
 	install -d $(DESTDIR)$(PREFIX)/share/bash-completion/completions
 	install -m 644 completions/kpm.bash $(DESTDIR)$(PREFIX)/share/bash-completion/completions/kpm
