@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/Luvion1/kpm/actions/workflows/build.yml/badge.svg)](https://github.com/Luvion1/kpm/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/github/v/release/Luvion1/kpm)](https://github.com/Luvion1/kpm/releases)
+[![Release](https://img.shields.io/github/release/Luvion1/kpm)](https://github.com/Luvion1/kpm/releases/v0.0.1)
 [![Platform](https://img.shields.io/badge/platform-linux-lightgrey)](https://github.com/Luvion1/kpm)
 
 **kpm** is the official package manager for the **K# (KSharp)** ecosystem. Designed with the "URL-as-Identity" philosophy, `kpm` enables developers to share and consume code directly from Git repositories without the friction of a centralized registry.
