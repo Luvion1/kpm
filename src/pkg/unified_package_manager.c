@@ -550,8 +550,8 @@ bool tidy_dependencies(UnifiedPackageManager* upm) {
             char* req_copy = strdup(kmod_info->requirements[i]);
             char* token = strtok(req_copy, " ");
             if (token) {
-                char* package_name = token;
-                char* version = strtok(NULL, " ");
+                const char* package_name = token;
+                const char* version = strtok(NULL, " ");
 
                 // Cek apakah paket sudah terinstal
                 bool found = false;
