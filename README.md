@@ -5,64 +5,64 @@
 [![Release](https://img.shields.io/github/v/release/Luvion1/kpm)](https://github.com/Luvion1/kpm/releases)
 [![Platform](https://img.shields.io/badge/platform-linux-lightgrey)](https://github.com/Luvion1/kpm)
 
-**kpm** adalah manajer paket resmi untuk ekosistem **K# (KSharp)**. Dirancang dengan filosofi "URL-as-Identity", `kpm` memungkinkan pengembang untuk berbagi dan menggunakan kode langsung dari repositori Git tanpa hambatan registry terpusat.
+**kpm** is the official package manager for the **K# (KSharp)** ecosystem. Designed with the "URL-as-Identity" philosophy, `kpm` enables developers to share and consume code directly from Git repositories without the friction of a centralized registry.
 
 ---
 
-## 💎 Filosofi K#
+## 💎 K# Philosophy
 
 > **"Maximum Power, Minimal Noise."**
 
-K# hadir untuk memberikan performa setingkat C dengan estetika kode yang bersih dan manajemen memori yang cerdas. `kpm` mendukung visi ini dengan menyediakan sistem distribusi kode yang:
-- **Desentralisasi**: Tidak ada server pusat. Kode adalah milik Anda, di mana pun Anda menyimpannya.
-- **Transparan**: Metadata minimalis yang bisa disematkan langsung di dalam kode sumber.
-- **Cepat**: Ditulis dalam C11 untuk performa maksimal dan jejak memori yang rendah.
+K# is built to deliver C-level performance with clean code aesthetics and intelligent memory management. `kpm` supports this vision by providing a code distribution system that is:
+- **Decentralized**: No central server. Your code belongs to you, wherever you choose to host it.
+- **Transparent**: Minimalist metadata that can be embedded directly within the source code.
+- **Fast**: Written in C11 for maximum performance and a low memory footprint.
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Key Features
 
-- 🚀 **Go-Style Workflow**: Perintah familiar seperti `get` dan `tidy` untuk pengalaman pengembangan yang mulus.
-- 🌐 **Decentralized**: Paket diambil langsung dari penyedia Git (GitHub, GitLab, dll).
-- 📦 **Header-Only Metadata**: Mendukung penyematan metadata langsung di file `.k` via komentar `// @key value`.
-- 🎨 **Modern CLI**: Antarmuka kaya visual dengan progress bar, spinner, dan pesan status berwarna.
-- 🔄 **Recursive Resolution**: Mendeteksi dan menginstal dependensi secara otomatis dari file `kmod.k`.
-- 📂 **Global Cache**: Manajemen modul berbasis domain di `~/.ksharp/modules`.
+- 🚀 **Go-Style Workflow**: Familiar commands like `get` and `tidy` for a seamless developer experience.
+- 🌐 **Decentralized**: Packages are fetched directly from Git providers (GitHub, GitLab, etc.).
+- 📦 **Header-Only Metadata**: Supports embedding metadata directly in `.k` files via `// @key value` comments.
+- 🎨 **Modern CLI**: Rich visual experience with progress bars, spinners, and colored status messages.
+- 🔄 **Recursive Resolution**: Automatically detects and installs dependencies from `kmod.k` files.
+- 📂 **Global Cache**: Domain-based module management in `~/.ksharp/modules`.
 
 ---
 
-## 🚀 Instalasi
+## 🚀 Installation
 
-### Skrip Otomatis (Rekomendasi)
-Instal `kpm` secara global dengan satu perintah:
+### Automated Script (Recommended)
+Install `kpm` globally with a single command:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Luvion1/kpm/main/install.sh | bash
 ```
 
-### Dari Sumber (Source Code)
-Membutuhkan `gcc` dan `make`.
+### From Source
+Requires `gcc` and `make`.
 ```bash
 git clone https://github.com/Luvion1/kpm.git
 cd kpm
 make
 sudo make install
 ```
-*Ini juga akan menginstal man pages dan bash completion.*
+*This will also install man pages and bash completion.*
 
 ---
 
 ## 🐚 Shell Completions
 
-`kpm` mendukung auto-completion untuk terminal agar lebih produktif.
+`kpm` supports command auto-completion for a smoother terminal experience.
 
 ### Bash
-Biasanya terinstal otomatis di `/usr/local/share/bash-completion/completions/kpm`. Aktifkan manual dengan:
+Completions are usually installed automatically to `/usr/local/share/bash-completion/completions/kpm`. To enable it manually:
 ```bash
 source completions/kpm.bash
 ```
 
 ### Zsh
-Tambahkan ke `$fpath` Anda:
+Add it to your `$fpath`:
 ```zsh
 mkdir -p ~/.zsh/completion
 cp completions/kpm.zsh ~/.zsh/completion/_kpm
@@ -72,50 +72,50 @@ echo 'autoload -U compinit && compinit' >> ~/.zshrc
 
 ---
 
-## 🛠 Panduan Penggunaan
+## 🛠 Usage Guide
 
-### Inisialisasi Proyek Baru
-Buat struktur proyek standar K#:
+### Initialize a New Project
+Create a standard K# project structure:
 ```bash
 kpm init my-awesome-app
 ```
 
-### Mengelola Dependensi
-Unduh dan daftarkan paket baru:
+### Managing Dependencies
+Download and register a new package:
 ```bash
 kpm get github.com/user/repo
 ```
 
-Sinkronkan dependensi proyek dan hapus yang tidak digunakan:
+Sync project dependencies and remove unused ones:
 ```bash
 kpm tidy
 ```
 
-### Diagnostik
-Jika mengalami kendala, jalankan alat diagnostik:
+### Diagnostics
+If you encounter issues, run the diagnostic tool:
 ```bash
 ./scripts/kpm-doctor.sh
 ```
 
 ---
 
-## ⚙️ Referensi Perintah
+## ⚙️ Command Reference
 
-| Perintah | Alias | Deskripsi |
+| Command | Aliases | Description |
 | :--- | :--- | :--- |
-| `init` | - | Membuat struktur modul K# baru |
-| `get` | `install` | Mengambil paket dari URL/Git |
-| `list` | `ls` | Menampilkan semua paket terinstal |
-| `remove` | `rm`, `uninstall` | Menghapus paket dari cache |
-| `tidy` | `resolve` | Sinkronisasi `kmod.k` dengan kode sumber |
-| `help` | - | Menampilkan bantuan perintah |
+| `init` | - | Create a new K# module structure |
+| `get` | `install` | Fetch a package from a URL/Git |
+| `list` | `ls` | Show all installed packages |
+| `remove` | `rm`, `uninstall` | Remove a package from cache |
+| `tidy` | `resolve` | Auto-sync `kmod.k` with source code |
+| `help` | - | Show command reference |
 
 ---
 
-## 🤝 Kontribusi
+## 🤝 Contributing
 
-Kontribusi selalu diterima! Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lebih lanjut.
+Contributions are always welcome! Please check [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## 📄 Lisensi
+## 📄 License
 
-kpm dirilis di bawah **MIT License**. Lihat [LICENSE](LICENSE) untuk detail selengkapnya.
+kpm is released under the **MIT License**. See [LICENSE](LICENSE) for details.
