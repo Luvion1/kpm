@@ -22,7 +22,6 @@ static char* extract_until(const char* start, const char* end) {
     if (!start || !end || start >= end) return NULL;
 
     ptrdiff_t len = end - start;  // Gunakan ptrdiff_t untuk mencegah overflow
-    if (len <= 0) return NULL;
 
     // Batasi panjang maksimum untuk mencegah alokasi memori besar
     if (len > 1024) return NULL;
