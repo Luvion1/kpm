@@ -48,7 +48,7 @@ bool fs_mkdir_p(const char* path) {
     char* temp_path = malloc(len + 1);  // Alokasi dinamis berdasarkan panjang path
     if (!temp_path) return false;
 
-    strcpy(temp_path, path);
+    strncpy(temp_path, path, len + 1);
 
     if (temp_path[len - 1] == '/') temp_path[len - 1] = 0;
 
@@ -75,4 +75,19 @@ bool run_shell_cmd(const char* cmd) {
     int status = system(cmd);
     if (status == -1) return false;
     return (WIFEXITED(status) && WEXITSTATUS(status) == 0);
+}
+
+bool is_path_safe(const char* path) {
+    if (!path) return false;
+
+    // Cek untuk directory traversal (..)
+    if (strstr(path, "..") != NULL) return false;
+
+    // Cek untuk karakter berbahaya
+    const char* dangerous_chars = "<>\"|?*";
+    for (size_t i = 0; i < strlen(dangerous_chars); i++) {
+        if (strchr(path, dangerous_chars[i]) != NULL) return false;
+    }
+
+    return true;
 }

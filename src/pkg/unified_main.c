@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "unified_package_manager.h"
+#include "../util/utils.h"
 
 void print_banner() {
     print_logo();
@@ -23,7 +24,7 @@ void print_usage() {
     printf("  list                       List installed packages\n");
     printf("  remove <url>               Remove a package\n");
     printf("  tidy                       Add missing and remove unused modules\n");
-    
+
     printf("\n" COL_CYAN "Aliases:" COL_RESET "\n");
     printf("  install -> get\n");
     printf("  uninstall -> remove\n");
@@ -34,6 +35,19 @@ int main(int argc, char *argv[]) {
     if (argc < 2) {
         print_usage();
         return 1;
+    }
+
+    // Validasi command line arguments untuk keamanan
+    for (int i = 1; i < argc; i++) {
+        if (!argv[i]) continue;
+        // Cek untuk karakter berbahaya dalam arguments
+        const char* dangerous = "\'\";&|$`()";
+        for (const char* p = dangerous; *p; p++) {
+            if (strchr(argv[i], *p)) {
+                fprintf(stderr, "Error: Invalid characters in command arguments\n");
+                return 1;
+            }
+        }
     }
 
     const char* command = argv[1];

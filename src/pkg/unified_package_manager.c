@@ -45,18 +45,7 @@ char* read_file_safe(const char* filepath) {
     return content;
 }
 
-// bool write_file_safe(const char* filepath, const char* content) {
-//     if (!filepath || !content) return false;
-//
-//     FILE* fp = fopen(filepath, "w");
-//     if (!fp) return false;
-//
-//     size_t len = strlen(content);
-//     size_t written = fwrite(content, 1, len, fp);
-//     fclose(fp);
-//
-//     return written == len;
-// }
+
 
 bool directory_exists(const char* path) {
     if (!path) return false;
@@ -76,7 +65,7 @@ bool create_directory_recursive(const char* path) {
         return false;
     }
 
-    strcpy(tmp, path);
+    strncpy(tmp, path, sizeof(tmp));
 
     if (tmp[len - 1] == '/') tmp[len - 1] = 0;
     for (char* p = tmp + 1; *p; p++) {
@@ -145,7 +134,15 @@ UnifiedPackageManager* init_unified_package_manager(const char* root_dir, const 
     if (!upm) return NULL;
     
     upm->root_dir = root_dir ? strdup(root_dir) : NULL;
-    upm->cache_dir = strdup("/tmp/ksharp_cache"); // Default cache dir
+    // Default cache dir di home user untuk persistensi
+    const char* home = getenv("HOME");
+    if (home) {
+        char cache_path[1024];
+        snprintf(cache_path, sizeof(cache_path), "%s/.ksharp/cache", home);
+        upm->cache_dir = strdup(cache_path);
+    } else {
+        upm->cache_dir = strdup("/tmp/ksharp_cache"); // Fallback
+    }
     upm->registry_url = registry_url ? strdup(registry_url) : strdup("direct");
     upm->packages = NULL;
     upm->package_count = 0;
@@ -543,65 +540,7 @@ bool parse_header_meta_from_file(const char* filepath, HeaderMeta* meta) {
     return true;
 }
 
-// bool save_header_meta_to_file(const char* filepath, const HeaderMeta* meta) {
-//     if (!filepath || !meta) return false;
-//
-//     // Baca konten file asli
-//     char* original_content = read_file_safe(filepath);
-//     if (!original_content) {
-//         // Jika file tidak ada, buat file baru dengan metadata
-//         FILE* fp = fopen(filepath, "w");
-//         if (!fp) return false;
-//
-//         fprintf(fp, "// @name %s\n", meta->package_name ? meta->package_name : "unknown");
-//         fprintf(fp, "// @version %s\n", meta->version ? meta->version : "0.0.1");
-//         fprintf(fp, "// @description %s\n", meta->description ? meta->description : "No description");
-//         fprintf(fp, "// @author %s\n", meta->author ? meta->author : "Unknown");
-//         fprintf(fp, "\n");
-//
-//         fclose(fp);
-//         return true;
-//     }
-//
-//     // Temukan posisi header metadata (jika ada)
-//     const char* header_end = strstr(original_content, "\n\n"); // Asumsikan header dipisahkan oleh double newline
-//     if (!header_end) {
-//         header_end = strstr(original_content, "\n"); // Atau single newline
-//     }
-//
-//     FILE* fp = fopen(filepath, "w");
-//     if (!fp) {
-//         free(original_content);
-//         return false;
-//     }
-//
-//     // Tulis metadata header
-//     fprintf(fp, "// @name %s\n", meta->package_name ? meta->package_name : "unknown");
-//     fprintf(fp, "// @version %s\n", meta->version ? meta->version : "0.0.1");
-//     fprintf(fp, "// @description %s\n", meta->description ? meta->description : "No description");
-//     fprintf(fp, "// @author %s\n", meta->author ? meta->author : "Unknown");
-//     if (meta->license) fprintf(fp, "// @license %s\n", meta->license);
-//     if (meta->dependencies) fprintf(fp, "// @dependencies %s\n", meta->dependencies);
-//     if (meta->keywords) fprintf(fp, "// @keywords %s\n", meta->keywords);
-//     if (meta->homepage) fprintf(fp, "// @homepage %s\n", meta->homepage);
-//     if (meta->repository) fprintf(fp, "// @repository %s\n", meta->repository);
-//     if (meta->bugs) fprintf(fp, "// @bugs %s\n", meta->bugs);
-//     if (meta->contributors) fprintf(fp, "// @contributors %s\n", meta->contributors);
-//     if (meta->categories) fprintf(fp, "// @categories %s\n", meta->categories);
-//     if (meta->tags) fprintf(fp, "// @tags %s\n", meta->tags);
-//     fprintf(fp, "\n");
-//
-//     // Jika ada konten asli setelah header, tulis juga
-//     if (header_end) {
-//         fprintf(fp, "%s", header_end + 1); // Lewati newline pertama
-//     } else {
-//         fprintf(fp, "%s", original_content);
-//     }
-//
-//     fclose(fp);
-//     free(original_content);
-//     return true;
-// }
+
 
 // Fungsi untuk menata dependensi berdasarkan kmod.k
 bool tidy_dependencies(UnifiedPackageManager* upm) {
